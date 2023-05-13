@@ -17,7 +17,7 @@ class PanierController extends Controller
             'produits' => 'required|array',
             'produits.*.nom_produit' => 'required|string',
             'produits.*.prix' => 'required|numeric',
-            'produits.*.quantite' => 'nullable|integer',
+            'produits.*.quantite' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -42,22 +42,22 @@ class PanierController extends Controller
                         'message' => $response
                     ], 400);
                 }
-                #return response()->json($validator->errors(), 400);
-            }
-            $user = User::find($user_id);
-            if (!$user) {
-                return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
             }
 
-            $panier = new Panier();
-            $panier->produits = json_encode($request->input('produits'));
-            $panier->total = $this->calculateTotal($request->input('produits'));
-            $panier->user_id = $user_id;
-            $panier->statut = false;
-            $panier->save();
-
-            return response()->json('Panier créé avec succès.', 200);
         }
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
+        }
+
+        $panier = new Panier();
+        $panier->produits = json_encode($request->input('produits'));
+        $panier->total = $this->calculateTotal($request->input('produits'));
+        $panier->user_id = $user_id;
+        $panier->statut = false;
+        $panier->save();
+        $panier->produits = json_decode($panier->produits);
+        return response()->json(['success' => true, 'response' => $panier], 201);
     }
 
     private function calculateTotal($produits)
@@ -69,6 +69,30 @@ class PanierController extends Controller
         }
 
         return $total;
+    }
+
+    public function userPaniers(int $user_id)
+    {
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
+        }
+        else
+        {
+            if ($user->paniers->isNotEmpty())
+            {
+                foreach ($user->paniers as $panier)
+                {
+                    $panier->produits = json_decode($panier->produits);
+                }
+                return response()->json(['success' => true, 'response' => $user->paniers], 200);
+            }
+            else
+            {
+                return response()->json(['success' => false, 'message' => 'Pas de panier disponible'], 404);
+            }
+        }
+
     }
 
 }

@@ -16,4 +16,9 @@ class Panier extends Model
       'user_id',
       'statut'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
