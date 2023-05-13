@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Http\Controllers\Api\Panier;
+
+use App\Http\Controllers\Controller;
+use App\Models\Panier;
+use App\Models\User;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
+
+class PanierController extends Controller
+{
+
+    public function addPanier(Request $request, $user_id)
+    {
+        $validator = Validator::make($request->all(), [
+            'produits' => 'required|array',
+            'produits.*.nom_produit' => 'required|string',
+            'produits.*.prix' => 'required|numeric',
+            'produits.*.quantite' => 'nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            foreach ($messages->messages() as $key => $value) {
+                if ($messages->has($key . '.required')) {
+                    $response = $key;
+                    return response()->json([
+                        'success' => false,
+                        'message' => $response
+                    ], 400);
+                } elseif ($messages->has($key . '.unique')) {
+                    $response = $key;
+                    return response()->json([
+                        'success' => false,
+                        'message' => $response
+                    ], 400);
+                } else {
+                    $response = $value[0];
+                    return response()->json([
+                        'success' => false,
+                        'message' => $response
+                    ], 400);
+                }
+                #return response()->json($validator->errors(), 400);
+            }
+            $user = User::find($user_id);
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
+            }
+
+            $panier = new Panier();
+            $panier->produits = json_encode($request->input('produits'));
+            $panier->total = $this->calculateTotal($request->input('produits'));
+            $panier->user_id = $user_id;
+            $panier->statut = false;
+            $panier->save();
+
+            return response()->json('Panier créé avec succès.', 200);
+        }
+    }
+
+    private function calculateTotal($produits)
+    {
+        $total = 0;
+
+        foreach ($produits as $produit) {
+            $total += $produit['prix'] * $produit['quantite'];
+        }
+
+        return $total;
+    }
+
+}

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
     return $request->user();
 });*/
 
-Route::get('/user', 'App\Http\Controllers\Api\User\AuthController@getMe')->middleware('auth:sanctum');
+Route::get('/user', 'App\Http\Controllers\Api\User\AuthController@getMe')->middleware('auth:api');
 Route::post('/login', 'App\Http\Controllers\Api\User\AuthController@login');
 Route::post('/register', 'App\Http\Controllers\Api\User\AuthController@register');
+Route::post('/users/{id}/paniers', 'App\Http\Controllers\Api\Panier\PanierController@addPanier');
