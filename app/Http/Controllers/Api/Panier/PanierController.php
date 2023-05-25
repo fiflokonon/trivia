@@ -18,6 +18,12 @@ class PanierController extends Controller
             'produits.*.nom_produit' => 'required|string',
             'produits.*.prix' => 'required|numeric',
             'produits.*.quantite' => 'required|integer',
+            'produits.*.prix_promo' => 'nullable|numeric',
+            'produits.*.lien_produit' => 'nullable|string',
+            'produits.*.lien_image' => 'required|string',
+            'produits.*.couleur' => 'nullable|string',
+            'produits.*.taille' => 'nullable|string',
+            'produits.*.details_produit' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {
@@ -63,7 +69,6 @@ class PanierController extends Controller
     private function calculateTotal($produits)
     {
         $total = 0;
-
         foreach ($produits as $produit) {
             $total += $produit['prix'] * $produit['quantite'];
         }
