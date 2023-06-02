@@ -63,7 +63,7 @@ class PanierController extends Controller
         $panier->sous_total = $this->calculateTotal($request->input('produits'));
         $panier->user_id = $user_id;
         $panier->numero_panier = $numero_commande;
-        $panier->lien_qr_code = 'qr/'.$this->generateQrCode($numero_commande);
+        #$panier->lien_qr_code = 'qr/'.$this->generateQrCode($numero_commande);
         $panier->statut = false;
         $panier->save();
         $panier->produits = json_decode($panier->produits);
