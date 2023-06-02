@@ -7,6 +7,8 @@ use App\Models\Panier;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\File;
 
 class PanierController extends Controller
 {
@@ -55,12 +57,13 @@ class PanierController extends Controller
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
         }
-
+        $numero_commande =  $this->generateReference();
         $panier = new Panier();
         $panier->produits = json_encode($request->input('produits'));
         $panier->sous_total = $this->calculateTotal($request->input('produits'));
         $panier->user_id = $user_id;
-        $panier->numero_panier = $this->generateReference();
+        $panier->numero_panier = $numero_commande;
+        $panier->lien_qr_code = 'qr/'.$this->generateQrCode($numero_commande);
         $panier->statut = false;
         $panier->save();
         $panier->produits = json_decode($panier->produits);
@@ -119,4 +122,22 @@ class PanierController extends Controller
             return false;
     }
 
+    public function generateQrCode($content)
+    {
+        $qrCode = QrCode::format('png')->size(200)->generate($content);
+
+        $filename = uniqid() . '.png';
+        $filePath = public_path('qr/' . $filename);
+        File::put($filePath, $qrCode);
+        return $filename;
+    }
+    /*public function generateQrCode($content)
+    {
+        $qrCode = QrCode::format('png')->size(200)->generate($content);
+
+        $filePath = public_path('qr/' . uniqid() . '.png');
+        File::put($filePath, $qrCode);
+        return $filePath;
+
+    }*/
 }
