@@ -9,4 +9,11 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
+
+    public function generateUniqueRef($length)
+    {
+        $bytes = random_bytes($length);
+        return strtoupper(bin2hex($bytes));
+    }
+
 }

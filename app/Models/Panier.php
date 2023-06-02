@@ -11,9 +11,16 @@ class Panier extends Model
 
     protected $table = 'paniers';
     protected $fillable = [
+      'numero_panier',
       'produits',
+      'sous_total',
+      'frais_fournisseur',
+      'frais_livraison',
+      'lien_qr_code',
       'total',
       'user_id',
+      'statut_paiement',
+      'id_transaction',
       'statut'
     ];
 

@@ -14,8 +14,14 @@ return new class extends Migration
         Schema::create('paniers', function (Blueprint $table) {
             $table->id();
             $table->json('produits');
-            $table->bigInteger('total');
+            $table->string('numero_panier')->unique();
+            $table->bigInteger('sous_total');
+            $table->bigInteger('frais_fournisseur')->default(0);
+            $table->bigInteger('frais_livraison')->default(0);
             $table->foreignId('user_id')->constrained('users');
+            $table->boolean('statut_paiement')->default(0);
+            $table->string('id_transaction')->nullable();
+            $table->string('lien_qr_code')->nullable();
             $table->boolean('statut');
             $table->timestamps();
         });

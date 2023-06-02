@@ -58,8 +58,9 @@ class PanierController extends Controller
 
         $panier = new Panier();
         $panier->produits = json_encode($request->input('produits'));
-        $panier->total = $this->calculateTotal($request->input('produits'));
+        $panier->sous_total = $this->calculateTotal($request->input('produits'));
         $panier->user_id = $user_id;
+        $panier->numero_panier = $this->generateReference();
         $panier->statut = false;
         $panier->save();
         $panier->produits = json_decode($panier->produits);
@@ -97,7 +98,25 @@ class PanierController extends Controller
                 return response()->json(['success' => false, 'message' => 'Pas de panier disponible'], 404);
             }
         }
+    }
 
+    public function generateReference()
+    {
+        $id_slug = $this->generateUniqueRef(7);
+        while ($this->checkRefExist($id_slug))
+        {
+            $id_slug = $this->generateUniqueRef(7);
+        }
+        return $id_slug;
+    }
+
+    public function checkRefExist($ref)
+    {
+        $panier = Panier::where('numero_panier', $ref)->first();
+        if ($panier && $panier->numero_panier)
+            return true;
+        else
+            return false;
     }
 
 }
