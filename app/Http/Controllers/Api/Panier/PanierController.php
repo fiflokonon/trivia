@@ -16,6 +16,17 @@ class PanierController extends Controller
     public function addPanier(Request $request, $user_id)
     {
         $validator = Validator::make($request->all(), [
+            'id_transaction' => 'nullable|numeric',
+            'frais_fournisseur' => 'nullable|numeric',
+            'frais_livraison' => 'nullable|numeric',
+            'pays_livraison' => 'required|string',
+            'point_relais' => 'nullable|string',
+            'nom' => 'required|string',
+            'prenoms' => 'required|string',
+            'contact' => 'required|string',
+            'email' => 'required|string',
+            'type_recepteur' => 'required|string',
+            'nom_prenom_recepteur' => 'nullable|string',
             'produits' => 'required|array',
             'produits.*.nom_produit' => 'required|string',
             'produits.*.prix' => 'required|numeric',

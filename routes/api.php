@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', 'App\Http\Controllers\Api\User\AuthController@getMe')->middleware('auth:api');
 Route::post('/login', 'App\Http\Controllers\Api\User\AuthController@login');
-Route::post('/register', 'App\Http\Controllers\Api\User\AuthController@register');
+Route::post('/inscription', 'App\Http\Controllers\Api\User\AuthController@register');
 Route::post('/forget-password', 'App\Http\Controllers\Api\User\ResetPasswordController@getEmail');
 Route::post('/reset-password', 'App\Http\Controllers\Api\User\ResetPasswordController@validateKey');
 

@@ -18,6 +18,14 @@ return new class extends Migration
             $table->bigInteger('sous_total');
             $table->bigInteger('frais_fournisseur')->default(0);
             $table->bigInteger('frais_livraison')->default(0);
+            $table->string('pays_livraison');
+            $table->string('point_relais')->nullable();
+            $table->string('nom');
+            $table->string('prenoms');
+            $table->string('email');
+            $table->string('contact');
+            $table->string('type_recepteur');
+            $table->string('nom_prenom_recepteur')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->boolean('statut_paiement')->default(0);
             $table->string('id_transaction')->nullable();
