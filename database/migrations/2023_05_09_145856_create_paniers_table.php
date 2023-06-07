@@ -16,8 +16,8 @@ return new class extends Migration
             $table->json('produits');
             $table->string('numero_panier')->unique();
             $table->bigInteger('sous_total');
-            $table->bigInteger('frais_fournisseur')->default(0);
-            $table->bigInteger('frais_livraison')->default(0);
+            $table->bigInteger('frais_fournisseur')->nullable();
+            $table->bigInteger('frais_livraison')->nullable();
             $table->string('pays_livraison');
             $table->string('point_relais')->nullable();
             $table->string('nom');
