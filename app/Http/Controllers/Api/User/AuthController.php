@@ -42,15 +42,14 @@ class AuthController extends Controller
         ]);
 
         // Créer un nouvel utilisateur avec les données validées
-        $user = new User;
-        $user->prenoms = $validatedData['prenoms'];
-        $user->nom = $validatedData['nom'];
-        $user->email = $validatedData['email'];
-        $user->password = Hash::make($validatedData['password']);
-        $user->phone = $validatedData['phone'];
-        $user->statut = true;
-        $user->save();
-
+        $user = User::create([
+            'nom' => $validatedData['nom'],
+            'prenoms' => $validatedData['prenoms'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'phone' => $validatedData['phone'],
+            'statut' => true
+        ]);
         // Générer un jeton d'API pour l'utilisateur
         $token = $user->createToken('MyAppToken')->accessToken;
         // Renvoyer la réponse JSON avec le jeton d'API
