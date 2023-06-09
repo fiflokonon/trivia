@@ -31,7 +31,7 @@ class AuthController extends Controller
         }
     }
 
-    public function register(Request $request)
+    public function inscription(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nom' => ['required', 'string', 'max:255'],
@@ -67,20 +67,25 @@ class AuthController extends Controller
                 }
             }
         }
-
-        $user = User::create([
-            'nom' => $request->nom,
-            'prenoms' => $request->prenoms,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'statut' => true
-        ]);
-
-        $token = $user->createToken('Token Name')->accessToken;
-        return response()->json(
-            ['success' => true, 'response' => ['token' => $token->token, 'user' => $user, 'medecin' => false]], 201);
-
+        else{
+            $user = User::create([
+                'nom' => $request->nom,
+                'prenoms' => $request->prenoms,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+                'statut' => true
+            ]);
+            $token = $user->createToken('Token Name')->accessToken;
+            return response()->json(
+                [
+                    'success' => true,
+                    'response' => [
+                        'token' => $token->token, '
+                    user' => $user
+                    ]]
+                , 201);
+        }
     }
 
     /*public function register(Request $request)
