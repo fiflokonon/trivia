@@ -12,13 +12,13 @@ use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    /*public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('MyAppToken')->accessToken;
+            $user = $request->user();
+            $token = $user->createToken('MyAppToken')->plainTextToken;
             return response()->json([
                 'success' => true,
                 'response' => [
@@ -28,6 +28,30 @@ class AuthController extends Controller
                 ], 200);
         } else {
             return response()->json(['success' => false, 'message' => 'Identifiants incorrects'], 401);
+        }
+    }*/
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $user = $request->user();
+            // Générer un nouveau jeton d'authentification pour l'utilisateur
+            $token = $user->createToken('AuthToken')->plainTextToken;
+            $token = explode('|', $token)[1];
+            return response()->json([
+                'success' => true,
+                'response' => [
+                    'token' => $token,
+                    'user' => $user
+                ]
+            ], 200);
+            #return response()->json(['message' => 'Authentification réussie', 'token' => $token]);
+        } else {
+            return response()->json(['message' => 'Identifiants invalides'], 401);
         }
     }
 
@@ -76,13 +100,13 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'statut' => true
             ]);
-            $token = $user->createToken('Token Name')->accessToken;
+            $token = $user->createToken('Token Name')->plainTextToken;
             return response()->json(
                 [
                     'success' => true,
                     'response' => [
-                        'token' => $token->token, '
-                    user' => $user
+                        'token' => $token->token,
+                        'user' => $user
                     ]]
                 , 201);
         }
@@ -120,15 +144,11 @@ class AuthController extends Controller
             ], 201);
     }*/
 
+
     public function getMe(Request $request)
     {
-        if (\auth()->check())
-        {
-            return response()->json(['success' => true, 'user' => \auth()->user()]);
-        }
-        else
-        {
-            return response()->json(['success' => false]);
-        }
+        $user = $request->user();
+        return response()->json(['user' => $user]);
     }
+
 }

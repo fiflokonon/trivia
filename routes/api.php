@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\User\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
     return $request->user();
 });*/
 
-Route::get('/user', 'App\Http\Controllers\Api\User\AuthController@getMe');
+Route::get('/me', [AuthController::class, 'getMe'])->middleware('auth:sanctum');
 Route::post('/login', 'App\Http\Controllers\Api\User\AuthController@login');
 Route::post('/inscription', 'App\Http\Controllers\Api\User\AuthController@inscription');
 Route::post('/forget-password', 'App\Http\Controllers\Api\User\ResetPasswordController@getEmail');
