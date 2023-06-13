@@ -35,7 +35,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nom' => ['required', 'string', 'max:255'],
-            'prenoms' => ['nullable', 'string', 'max:255'],
+            #'prenoms' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255',
                 Rule::unique('users')->where(function ($query) use ($request) {
                     return $query->where('email', $request->email)->where('id', '<>', $request->id);
@@ -70,7 +70,7 @@ class AuthController extends Controller
         else{
             $user = User::create([
                 'nom' => $request->nom,
-                'prenoms' => $request->prenoms,
+                #'prenoms' => $request->prenoms,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
