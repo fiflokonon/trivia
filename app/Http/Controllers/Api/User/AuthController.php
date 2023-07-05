@@ -31,7 +31,7 @@ class AuthController extends Controller
                 $emailSent = $this->sendVerificationCode($user->email, $code);
                 if ($emailSent)
                 {
-                    return response()->json(['success' => false, 'message' => "Votre compte n'est pas activé. Vous venez de recevoir un code d'activation par e-mail. Veuillez entrer le code pour activer votre compte."], 401);
+                    return response()->json(['success' => false, 'activation' => true , 'message' => "Votre compte n'est pas activé. Vous venez de recevoir un code d'activation par e-mail. Veuillez entrer le code pour activer votre compte."], 401);
                 }
                 else
                 {
