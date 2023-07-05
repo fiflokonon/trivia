@@ -4,6 +4,7 @@
 /public/hot
 /public/storage
 /public/qr/*
+/public/images/profil/*
 /storage/*.key
 /vendor
 .env

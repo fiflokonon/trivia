@@ -219,4 +219,53 @@ class AuthController extends Controller
         }
     }
 
+    public function addProfilePhoto(Request $request)
+    {
+
+        $user = $request->user();
+        if($user && $user->statut)
+        {
+            $photo = $this->uploadPhoto($request);
+            if ($photo)
+            {
+                $user->photo_profil = 'profil/'.$photo;
+                try {
+                    $user->save();
+                    return response()->json(['success' => true, 'response' => $user], 200);
+                }catch (\Exception $exception)
+                {
+                    return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
+                }
+            }
+            else
+            {
+                response()->json(['success' => false, 'message' => 'Erreur lors de l\'enregistrement de l\'image' ], 500);
+            }
+        }
+        else
+        {
+            return response()->json(['success' => false, 'message' => 'U'], 401);
+        }
+    }
+
+    public function uploadPhoto(Request $request)
+    {
+        $file = $request->file('photo');
+        if ($file)
+        {
+            $valid_extensions = ['jpeg', 'png', 'jpg'];
+            if (!$file->isValid() || !in_array($file->getClientOriginalExtension(), $valid_extensions)) {
+                return response()->json(['success' => false, 'message' => 'Le fichier est invalide'], 400);
+            }
+            $filename = uniqid(). '.' .$file->getClientOriginalExtension();
+            $file->move(public_path('images/profil/'), $filename);
+            return $filename;
+        }
+        else
+        {
+            return response()->json(['success' => false, 'message' => 'Le fichier est vide'], 400);
+        }
+
+    }
+
 }

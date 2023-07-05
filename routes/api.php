@@ -26,6 +26,6 @@ Route::post('/forget-password', 'App\Http\Controllers\Api\User\ResetPasswordCont
 Route::post('/reset-password', 'App\Http\Controllers\Api\User\ResetPasswordController@validateKey');
 Route::post('/validate-account', 'App\Http\Controllers\Api\User\AuthController@validateCode');
 
-Route::post('/users/{id}/paniers', 'App\Http\Controllers\Api\Panier\PanierController@addPanier');
+Route::post('/profil-photo', 'App\Http\Controllers\Api\User\AuthController@addProfilePhoto')->middleware('auth:sanctum');
 Route::post('/paniers', 'App\Http\Controllers\Api\Panier\PanierController@addPanier')->middleware('auth:sanctum');
 Route::get('/paniers','App\Http\Controllers\Api\Panier\PanierController@userPaniers')->middleware('auth:sanctum');
