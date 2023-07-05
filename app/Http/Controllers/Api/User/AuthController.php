@@ -129,7 +129,14 @@ class AuthController extends Controller
     public function getMe(Request $request)
     {
         $user = $request->user();
-        return response()->json(['user' => $user]);
+        if ($user)
+        {
+            return response()->json(['success' => true, 'reponse' => $user]);
+        }
+        else
+        {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
     }
 
     public function generateCode($email) {
