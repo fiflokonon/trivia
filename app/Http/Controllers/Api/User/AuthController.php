@@ -55,7 +55,7 @@ class AuthController extends Controller
         }
         else
         {
-            return response()->json(['message' => 'Identifiants invalides'], 401);
+            return response()->json(['success' => false, 'message' => 'Identifiants invalides'], 401);
         }
     }
 
