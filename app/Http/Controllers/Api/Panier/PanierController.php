@@ -78,6 +78,7 @@ class PanierController extends Controller
                 $panier->produits = json_encode($request->input('produits'));
                 $panier->sous_total = $this->calculateTotal($request->input('produits'));
                 $panier->user_id = $user->id;
+                $panier->commercant_id = $commercant->id;
                 $panier->numero_panier = $numero_commande;
                 $panier->id_transaction = $request->id_transaction;
                 $panier->frais_fournisseur = $request->frais_fournisseur;
