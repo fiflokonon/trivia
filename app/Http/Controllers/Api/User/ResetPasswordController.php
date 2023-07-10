@@ -42,11 +42,11 @@ class ResetPasswordController extends Controller
 
 
     public function generateKey($email) {
-        $key = Str::upper(Str::random(5, 'alphaNum'));
+        $key = str_pad(mt_rand(1, 99999), 4, '0', STR_PAD_LEFT);
         // Vérifier si la clé temporaire existe déjà pour l'email fourni
         while (ResetPasswordKey::where('email', $email)->where('key', $key)->exists()) {
             // Si la clé existe déjà, générer une nouvelle clé unique
-            $key = Str::upper(Str::random(5, 'alphaNum'));
+            $key = str_pad(mt_rand(1, 99999), 4, '0', STR_PAD_LEFT);
         }
         // Enregistrer la clé temporaire dans la base de données
         ResetPasswordKey::create([

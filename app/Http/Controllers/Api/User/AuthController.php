@@ -141,11 +141,11 @@ class AuthController extends Controller
 
     public function generateCode($email) {
 
-        $code = str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+        $code = str_pad(mt_rand(1, 99999), 4, '0', STR_PAD_LEFT);
         // Vérifier si la clé temporaire existe déjà pour l'email fourni
         while (VerificationCode::where('email', $email)->where('code', $code)->exists()) {
             // Si la clé existe déjà, générer une nouvelle clé unique
-            $code = str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+            $code = str_pad(mt_rand(1, 99999), 4, '0', STR_PAD_LEFT);
         }
         // Enregistrer la clé temporaire dans la base de données
         VerificationCode::create([
