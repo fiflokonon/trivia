@@ -27,5 +27,5 @@ Route::get('/parametres', 'App\Http\Controllers\Api\Panier\ParametreController@l
 Route::get('/slides', 'App\Http\Controllers\Api\Slide\SlideController@slides');
 
 Route::post('/profil-photo', 'App\Http\Controllers\Api\User\AuthController@addProfilePhoto')->middleware('auth:sanctum');
-Route::post('/paniers', 'App\Http\Controllers\Api\Panier\PanierController@addPanier')->middleware('auth:sanctum');
+Route::post('/commercants/{id}/paniers', 'App\Http\Controllers\Api\Panier\PanierController@addPanier')->middleware('auth:sanctum');
 Route::get('/paniers','App\Http\Controllers\Api\Panier\PanierController@userPaniers')->middleware('auth:sanctum');
