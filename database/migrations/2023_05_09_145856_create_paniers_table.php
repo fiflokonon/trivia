@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('type_recepteur');
             $table->string('nom_prenom_recepteur')->nullable();
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('commercant_id')->constrained('commercants');
             $table->boolean('statut_paiement')->default(0);
             $table->string('id_transaction')->nullable();
             $table->string('lien_qr_code')->nullable();

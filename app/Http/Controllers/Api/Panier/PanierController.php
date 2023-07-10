@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Panier;
 
 use App\Http\Controllers\Controller;
+use App\Models\Commercant;
 use App\Models\Panier;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -12,83 +13,94 @@ use Illuminate\Support\Facades\File;
 
 class PanierController extends Controller
 {
-    public function addPanier(Request $request)
+    public function addPanier(string $id, Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'id_transaction' => 'nullable|numeric',
-            'frais_fournisseur' => 'nullable|numeric',
-            'frais_livraison' => 'nullable|numeric',
-            'pays_livraison' => 'required|string',
-            'point_relais' => 'nullable|string',
-            'nom' => 'required|string',
-            'prenoms' => 'required|string',
-            'contact' => 'required|string',
-            'email' => 'required|string',
-            'type_recepteur' => 'required|string',
-            'nom_prenom_recepteur' => 'nullable|string',
-            'produits' => 'required|array',
-            'produits.*.nom_produit' => 'required|string',
-            'produits.*.prix' => 'required|numeric',
-            'produits.*.quantite' => 'required|integer',
-            'produits.*.prix_promo' => 'nullable|numeric',
-            'produits.*.lien_produit' => 'nullable|string',
-            'produits.*.lien_image' => 'required|string',
-            'produits.*.couleur' => 'nullable|string',
-            'produits.*.taille' => 'nullable|string',
-            'produits.*.details_produit' => 'nullable|string'
-        ]);
+        $commercant = Commercant::find($id);
+        if ($commercant && $commercant->statut)
+        {
+            $validator = Validator::make($request->all(), [
+                'id_transaction' => 'nullable|numeric',
+                'frais_fournisseur' => 'nullable|numeric',
+                'frais_livraison' => 'nullable|numeric',
+                'pays_livraison' => 'required|string',
+                'point_relais' => 'nullable|string',
+                'nom' => 'required|string',
+                'prenoms' => 'required|string',
+                'contact' => 'required|string',
+                'email' => 'required|string',
+                'type_recepteur' => 'required|string',
+                'nom_prenom_recepteur' => 'nullable|string',
+                'produits' => 'required|array',
+                'produits.*.nom_produit' => 'required|string',
+                'produits.*.prix' => 'required|numeric',
+                'produits.*.quantite' => 'required|integer',
+                'produits.*.prix_promo' => 'nullable|numeric',
+                'produits.*.lien_produit' => 'nullable|string',
+                'produits.*.lien_image' => 'required|string',
+                'produits.*.couleur' => 'nullable|string',
+                'produits.*.taille' => 'nullable|string',
+                'produits.*.details_produit' => 'nullable|string'
+            ]);
 
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            foreach ($messages->messages() as $key => $value) {
-                if ($messages->has($key . '.required')) {
-                    $response = $key;
-                    return response()->json([
-                        'success' => false,
-                        'message' => $response
-                    ], 400);
-                } elseif ($messages->has($key . '.unique')) {
-                    $response = $key;
-                    return response()->json([
-                        'success' => false,
-                        'message' => $response
-                    ], 400);
-                } else {
-                    $response = $value[0];
-                    return response()->json([
-                        'success' => false,
-                        'message' => $response
-                    ], 400);
+            if ($validator->fails()) {
+                $messages = $validator->errors();
+                foreach ($messages->messages() as $key => $value) {
+                    if ($messages->has($key . '.required')) {
+                        $response = $key;
+                        return response()->json([
+                            'success' => false,
+                            'message' => $response
+                        ], 400);
+                    } elseif ($messages->has($key . '.unique')) {
+                        $response = $key;
+                        return response()->json([
+                            'success' => false,
+                            'message' => $response
+                        ], 400);
+                    } else {
+                        $response = $value[0];
+                        return response()->json([
+                            'success' => false,
+                            'message' => $response
+                        ], 400);
+                    }
                 }
-            }
 
+            }
+            $user = $request->user();
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
+            }
+            else
+            {
+                $numero_commande =  $this->generateReference();
+                $panier = new Panier();
+                $panier->produits = json_encode($request->input('produits'));
+                $panier->sous_total = $this->calculateTotal($request->input('produits'));
+                $panier->user_id = $user->id;
+                $panier->numero_panier = $numero_commande;
+                $panier->id_transaction = $request->id_transaction;
+                $panier->frais_fournisseur = $request->frais_fournisseur;
+                $panier->frais_livraison = $request->frais_livraion;
+                $panier->pays_livraison = $request->pays_livraison;
+                $panier->point_relais = $request->point_relais;
+                $panier->nom = $request->nom;
+                $panier->prenoms = $request->prenoms;
+                $panier->email = $request->email;
+                $panier->contact = $request->contact;
+                $panier->type_recepteur = $request->type_recepteur;
+                $panier->nom_prenom_recepteur = $request->nom_prenom_recepteur;
+                $panier->statut = false;
+                $panier->save();
+                $panier->produits = json_decode($panier->produits);
+                return response()->json(['success' => true, 'response' => $panier], 201);
+            }
         }
-        $user = $request->user();
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé.'], 404);
+        else
+        {
+            return response()->json(['success' => false, 'message' => 'Commerçant inactif dans la base'], 404);
         }
-        $numero_commande =  $this->generateReference();
-        $panier = new Panier();
-        $panier->produits = json_encode($request->input('produits'));
-        $panier->sous_total = $this->calculateTotal($request->input('produits'));
-        $panier->user_id = $user->id;
-        $panier->numero_panier = $numero_commande;
-        $panier->id_transaction = $request->id_transaction;
-        $panier->frais_fournisseur = $request->frais_fournisseur;
-        $panier->frais_livraison = $request->frais_livraion;
-        $panier->pays_livraison = $request->pays_livraison;
-        $panier->point_relais = $request->point_relais;
-        $panier->nom = $request->nom;
-        $panier->prenoms = $request->prenoms;
-        $panier->email = $request->email;
-        $panier->contact = $request->contact;
-        $panier->type_recepteur = $request->type_recepteur;
-        $panier->nom_prenom_recepteur = $request->nom_prenom_recepteur;
-        #$panier->lien_qr_code = 'qr/'.$this->generateQrCode($numero_commande);
-        $panier->statut = false;
-        $panier->save();
-        $panier->produits = json_decode($panier->produits);
-        return response()->json(['success' => true, 'response' => $panier], 201);
+
     }
     private function calculateTotal($produits)
     {
@@ -151,13 +163,4 @@ class PanierController extends Controller
         File::put($filePath, $qrCode);
         return $filename;
     }
-    /*public function generateQrCode($content)
-    {
-        $qrCode = QrCode::format('png')->size(200)->generate($content);
-
-        $filePath = public_path('qr/' . uniqid() . '.png');
-        File::put($filePath, $qrCode);
-        return $filePath;
-
-    }*/
 }

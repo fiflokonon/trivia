@@ -29,11 +29,17 @@ class Panier extends Model
       'user_id',
       'statut_paiement',
       'id_transaction',
-      'statut'
+      'statut',
+      'commercant_id'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function commercant()
+    {
+        return $this->belongsTo(Commercant::class);
     }
 }

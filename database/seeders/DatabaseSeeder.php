@@ -1,7 +1,7 @@
 <?php
 
 namespace Database\Seeders;
-
+require __DIR__.'/functions.php' ;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,11 +12,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $this->call([
+           CommercantSeeder::class,
+           PubliciteSeeder::class,
+           ParametreSeeder::class
+        ]);
     }
 }

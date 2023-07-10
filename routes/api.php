@@ -22,6 +22,8 @@ Route::post('/inscription', 'App\Http\Controllers\Api\User\AuthController@inscri
 Route::post('/forget-password', 'App\Http\Controllers\Api\User\ResetPasswordController@getEmail');
 Route::post('/reset-password', 'App\Http\Controllers\Api\User\ResetPasswordController@validateKey');
 Route::post('/validate-account', 'App\Http\Controllers\Api\User\AuthController@validateCode');
+Route::get('/commercants', 'App\Http\Controllers\Api\Panier\CommercantController@listeCommercants');
+Route::get('/parametres', 'App\Http\Controllers\Api\Panier\ParametreController@listeParametres');
 
 Route::post('/profil-photo', 'App\Http\Controllers\Api\User\AuthController@addProfilePhoto')->middleware('auth:sanctum');
 Route::post('/paniers', 'App\Http\Controllers\Api\Panier\PanierController@addPanier')->middleware('auth:sanctum');
