@@ -16,7 +16,7 @@ class ParametreSeeder extends Seeder
         DB::table('parametres')->insert([
             [
                 'nom' => 'frais_trivia_premier_article',
-                'valeur' => 20,
+                'valeur' => 14,
                 'statut' => true
             ],
             [

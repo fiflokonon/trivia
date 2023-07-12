@@ -15,9 +15,16 @@ class CommercantSeeder extends Seeder
     {
         $commercants = [
             [
-                'nom' => 'Footlocker',
+                'nom' => 'Shein',
                 'montant_min' => 0.00,
                 'montant_max' => 39.00,
+                'frais' => 3.90,
+                'statut' => true
+            ],
+            [
+                'nom' => 'Footlocker',
+                'montant_min' => 0.00,
+                'montant_max' => 99.00,
                 'frais' => 3.90,
                 'statut' => true
             ],
@@ -30,8 +37,8 @@ class CommercantSeeder extends Seeder
             ],
             [
                 'nom' => 'PrettyLittleThing',
-                'montant_min' => null,
-                'montant_max' => null,
+                'montant_min' => 0.00,
+                'montant_max' => 0.00,
                 'frais' => 5.99,
                 'statut' => true
             ],
