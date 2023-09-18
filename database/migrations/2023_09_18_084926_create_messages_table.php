@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->text('message');
-            $table->foreignId('discussion_id');
             $table->foreignId('sender_id')->constrained('users');
-            $table->boolean('statut_vu')->default(false);
+            $table->foreignId('discussion_id');
+            $table->text('message');
+            $table->boolean('vu_client')->default(false);
+            $table->boolean('vu_admin')->default(false);
             $table->boolean('statut')->default(false);
             $table->timestamps();
         });

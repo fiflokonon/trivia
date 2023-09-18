@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('sujet');
             $table->foreignId('client_id')->constrained('users');
-            $table->boolean('statut')->default( false);
+            $table->boolean('statut')->default(false);
             $table->timestamps();
         });
     }

@@ -22,7 +22,7 @@ class Discussion extends Model
 
     public function last_message()
     {
-        return $this->messages()->first();
+        return $this->messages()->latest();
     }
 
     public function messages()

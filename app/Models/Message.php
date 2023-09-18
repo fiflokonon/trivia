@@ -14,7 +14,8 @@ class Message extends Model
         'discussion_id',
         'message',
         'statut',
-        'statut_vu'
+        'vu_client',
+        'vu_admin'
     ];
 
     public function discussion()
@@ -22,9 +23,9 @@ class Message extends Model
         return $this->belongsTo(Discussion::class);
     }
 
-    public function markAsRead()
+    public function sender()
     {
-        $this->statut_vu = true;
-        $this->save();
+        return $this->belongsTo(User::class, 'sender_id');
     }
+
 }

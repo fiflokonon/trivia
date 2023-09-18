@@ -26,15 +26,16 @@ class DiscussionController extends Controller
             }else{
                 try {
                     $discussion = Discussion::create([
-                       'sujet' => $request->sujet,
-                       'statut' => true,
-                       'client_id' => $user->id
+                        'sujet' => $request->sujet,
+                        'statut' => true,
+                        'client_id' => $user->id
                     ]);
                     $message = Message::create([
-                       'sender_id' => $user->id,
-                       'discussion_id' => $discussion->id,
-                       'message' => $request->message,
-                       'statut' => true
+                        'sender_id' => $user->id,
+                        'discussion_id' => $discussion->id,
+                        'message' => $request->message,
+                        'vu_client' => true,
+                        'statut' => true
                     ]);
                     return response()->json(['success' => true, 'message' => 'Message envoyé avec succès']);
                 }catch (Exception $exception){
@@ -57,7 +58,7 @@ class DiscussionController extends Controller
         }
         else{
             $validator = Validator::make($request->all(), [
-               'message' => 'required|string'
+                'message' => 'required|string'
             ]);
             if ($validator->fails()){
                 return response()->json(['success' => false, 'message' => $validator->errors()], 400);
@@ -65,9 +66,19 @@ class DiscussionController extends Controller
             $discussion = Discussion::find($id);
             if ($discussion)
             {
-                $message = Message::create([
-                   'sender_id'
-                ]);
+                try {
+                    $message = Message::create([
+                        'sender_id' => $user->id,
+                        'message' => $request->message,
+                        'statut' => true,
+                        'vu_admin' => true
+                    ]);
+                    return response()->json(['success' => true, 'message' => 'Réponse envoyée avec succès']);
+                }catch (\Exception $exception){
+                    return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
+                }
+            }else{
+                return response()->json(['success' => false, 'message' => 'Discussion non trouvée'], 404);
             }
         }
     }
@@ -89,7 +100,8 @@ class DiscussionController extends Controller
         }
     }
 
-    public function discussions(){
+    public function discussions()
+    {
         $user = auth()->user();
         if (!$user){
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
