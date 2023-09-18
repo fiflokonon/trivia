@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Http\Controllers\Api\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\Discussion;
+use App\Models\Message;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use PharIo\Version\Exception;
+
+class DiscussionController extends Controller
+{
+    public function initDiscussion(Request $request)
+    {
+        if ($request->user())
+        {
+            $user = $request->user();
+            $validator = Validator::make($request->all(), [
+                'sujet' => 'required|string|max:255',
+                'message' => 'required|string|max:255'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['success' => false, 'message' => $validator->errors()], 400);
+            }else{
+                try {
+                    $discussion = Discussion::create([
+                       'sujet' => $request->sujet,
+                       'statut' => true,
+                       'client_id' => $user->id
+                    ]);
+                    $message = Message::create([
+                       'sender_id' => $user->id,
+                       'discussion_id' => $discussion->id,
+                       'message' => $request->message,
+                       'statut' => true
+                    ]);
+                    return response()->json(['success' => true, 'message' => 'Message envoyé avec succès']);
+                }catch (Exception $exception){
+                    return response()->json(['success' => false, 'message' => $exception->getMessage()],400);
+                }
+            }
+        }else{
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+    }
+
+    public function answerMessage(int $id, Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }elseif (!$user->admin)
+        {
+            return response(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        else{
+            $validator = Validator::make($request->all(), [
+               'message' => 'required|string'
+            ]);
+            if ($validator->fails()){
+                return response()->json(['success' => false, 'message' => $validator->errors()], 400);
+            }
+            $discussion = Discussion::find($id);
+            if ($discussion)
+            {
+                $message = Message::create([
+                   'sender_id'
+                ]);
+            }
+        }
+    }
+    public function getAllDiscussions()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }elseif (!$user->admin)
+        {
+            return response(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        else{
+            $discussions = Discussion::with('last_message')->where('statut', true)->paginate(10);
+            if ($discussions)
+                return response()->json(['success' => true, 'response' => $discussions]);
+            else
+                return response()->json(['success' => false, 'message' => 'Pas de message'], 404);
+        }
+    }
+
+    public function discussions(){
+        $user = auth()->user();
+        if (!$user){
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }else{
+            $discussions = Discussion::with('last_message')->where('statut', true)->where('client_id', $user->id)->paginate(10);
+            if ($discussions)
+                return response()->json(['success' => true, 'response' => $discussions]);
+            else
+                return response()->json(['success' => false, 'message' => 'Pas de message'], 404);
+        }
+    }
+}
