@@ -30,7 +30,7 @@ class DiscussionController extends Controller
                         'statut' => true,
                         'client_id' => $user->id
                     ]);
-                    $message = Message::create([
+                    Message::create([
                         'sender_id' => $user->id,
                         'discussion_id' => $discussion->id,
                         'message' => $request->message,
@@ -67,14 +67,15 @@ class DiscussionController extends Controller
             if ($discussion)
             {
                 try {
-                    $message = Message::create([
+                    Message::create([
+                        'discussion_id' => $discussion->id,
                         'sender_id' => $user->id,
                         'message' => $request->message,
                         'statut' => true,
                         'vu_admin' => true
                     ]);
                     return response()->json(['success' => true, 'message' => 'Réponse envoyée avec succès']);
-                }catch (\Exception $exception){
+                }catch (Exception $exception){
                     return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
                 }
             }else{
@@ -82,6 +83,7 @@ class DiscussionController extends Controller
             }
         }
     }
+
     public function getAllDiscussions()
     {
         $user = auth()->user();
@@ -90,13 +92,14 @@ class DiscussionController extends Controller
         }elseif (!$user->admin)
         {
             return response(['success' => false, 'message' => 'Forbidden'], 403);
-        }
-        else{
+        }else{
             $discussions = Discussion::with('last_message')->where('statut', true)->paginate(10);
-            if ($discussions)
+            if ($discussions->isNotEmpty()){
                 return response()->json(['success' => true, 'response' => $discussions]);
-            else
+            }
+            else{
                 return response()->json(['success' => false, 'message' => 'Pas de message'], 404);
+            }
         }
     }
 
@@ -107,10 +110,61 @@ class DiscussionController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }else{
             $discussions = Discussion::with('last_message')->where('statut', true)->where('client_id', $user->id)->paginate(10);
-            if ($discussions)
+            if ($discussions->isNotEmpty())
                 return response()->json(['success' => true, 'response' => $discussions]);
             else
                 return response()->json(['success' => false, 'message' => 'Pas de message'], 404);
+        }
+    }
+
+    public function messages(int $id)
+    {
+        $discussion = Discussion::find($id);
+        if ($discussion){
+            $discussion->messages = $discussion->messages()->get();
+            return response()->json(['success' => true, 'response' => $discussion]);
+        }
+        else{
+            return response()->json(['success' => false, 'message' => 'Pas de message dans cette discussion'], 404);
+        }
+    }
+
+    public function adminLu(int $id)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }elseif (!$user->admin)
+        {
+            return response(['success' => false, 'message' => 'Forbidden'], 403);
+        }else{
+            $message = Message::find($id);
+            if (!$message->sender->admin) {
+                $message->vu_admin = true;
+                $message->save();
+                return response()->json(['success' => true, 'message' => 'Message lu']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            }
+        }
+    }
+
+    public function clientLu(int $id)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }
+        else
+        {
+            $message = Message::find($id);
+            if ($message){
+                $message->vu_client = true;
+                $message->save();
+                return response()->json(['success' => true, 'message' => 'Message lu']);
+            }else{
+             return response()->json(['success' => false, 'message' => 'Message non trouvé'], 404);
+            }
         }
     }
 }

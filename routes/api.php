@@ -39,9 +39,13 @@ Route::get('/paniers',[PanierController::class, 'userPaniers'])->middleware('aut
 Route::get('/points', [PointLivraisonController::class, 'pointActifs'])->middleware('auth:sanctum');
 Route::get('/messages', [DiscussionController::class, 'discussions'])->middleware('auth:sanctum');
 Route::post('/messages', [DiscussionController::class, 'initDiscussion'])->middleware('auth:sanctum');
+Route::get('/discussions/{id}/messages', [DiscussionController::class, 'messages'])->middleware('auth:sanctum');
+Route::patch('/messages/{id}/vu', [DiscussionController::class, 'clientLu'])->middleware('auth:sanctum');
 
+Route::get('/admins/paniers', [PanierController::class, 'getAllPaniers'])->middleware('auth:sanctum');
+Route::patch('/admins/paniers/{id}/valide', [PanierController::class, 'validerPanier'])->middleware('auth:sanctum');
+Route::get('/admins/messages', [DiscussionController::class, 'getAllDiscussions'])->middleware('auth:sanctum');
+Route::post('/admins/discussions/{id}/messages', [DiscussionController::class, 'answerMessage'])->middleware('auth:sanctum');
+Route::patch('/admins/messages/{id}/vu', [DiscussionController::class, 'adminLu'])->middleware('auth:sanctum');
 
-Route::get('/admin/paniers', [PanierController::class, 'getAllPaniers']);
-Route::patch('/admin/paniers/{id}/valide', [PanierController::class, 'validerPanier']);
-Route::get('/admin/messages', [DiscussionController::class, 'getAllDiscussions']);
 

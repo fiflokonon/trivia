@@ -211,8 +211,8 @@ class PanierController extends Controller
             return response(['success' => false, 'message' => 'Forbidden'], 403);
         }
         else{
-            $paniers = Panier::where('statut', true)->orderBy('DESC', 'created_at')->paginate(10);
-            if ($paniers)
+            $paniers = Panier::where('statut', true)->orderBy('created_at', 'DESC')->paginate(10);
+            if ($paniers->isNotEmpty())
             {
                 foreach ($paniers as $panier)
                 {
