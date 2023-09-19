@@ -93,7 +93,7 @@ class DiscussionController extends Controller
         {
             return response(['success' => false, 'message' => 'Forbidden'], 403);
         }else{
-            $discussions = Discussion::with('last_message')->where('statut', true)->paginate(10);
+            $discussions = Discussion::with('last_message.sender')->where('statut', true)->paginate(10);
             if ($discussions->isNotEmpty()){
                 return response()->json(['success' => true, 'response' => $discussions]);
             }
@@ -109,7 +109,7 @@ class DiscussionController extends Controller
         if (!$user){
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }else{
-            $discussions = Discussion::with('last_message')->where('statut', true)->where('client_id', $user->id)->paginate(10);
+            $discussions = Discussion::with('last_message.sender')->where('statut', true)->where('client_id', $user->id)->paginate(10);
             if ($discussions->isNotEmpty())
                 return response()->json(['success' => true, 'response' => $discussions]);
             else
