@@ -117,9 +117,9 @@ class DiscussionController extends Controller
         }
     }
 
-    public function messages(int $id)
+    /*public function messages(int $id)
     {
-        $discussion = Discussion::find($id);
+        $discussion = Discussion::with('messages.sender')->where('id', $id)->get();
         if ($discussion){
             $discussion->messages = $discussion->messages()->get();
             return response()->json(['success' => true, 'response' => $discussion]);
@@ -127,7 +127,18 @@ class DiscussionController extends Controller
         else{
             return response()->json(['success' => false, 'message' => 'Pas de message dans cette discussion'], 404);
         }
+    }*/
+    public function messages(int $id)
+    {
+        $discussion = Discussion::with(['messages.sender'])->find($id);
+
+        if ($discussion) {
+            return response()->json(['success' => true, 'response' => $discussion]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Pas de discussion trouvée'], 404);
+        }
     }
+
 
     public function adminLu(int $id)
     {
