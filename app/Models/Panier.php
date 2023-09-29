@@ -26,6 +26,7 @@ class Panier extends Model
       'email',
       'type_recepteur',
       'nom_prenom_recepteur',
+      'contact_recepteur',
       'lien_qr_code',
       'lien_facture',
       'total',

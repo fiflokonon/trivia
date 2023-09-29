@@ -35,6 +35,7 @@ class PanierController extends Controller
                 'email' => 'required|string',
                 'type_recepteur' => 'required|string',
                 'nom_prenom_recepteur' => 'nullable|string',
+                'contact_recepteur' => 'nullable|string',
                 'produits' => 'required|array',
                 'produits.*.nom_produit' => 'required|string',
                 'produits.*.prix' => 'required|numeric',
@@ -100,6 +101,7 @@ class PanierController extends Controller
                         $panier->contact = $request->contact;
                         $panier->type_recepteur = $request->type_recepteur;
                         $panier->nom_prenom_recepteur = $request->nom_prenom_recepteur;
+                        $panier->contact_recepteur = $request->contact_recepteur;
                         $panier->statut = true;
                         $panier->statut_livraison = 'en cours';
                         $panier->created_at = now();
