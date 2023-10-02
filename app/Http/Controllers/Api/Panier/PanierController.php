@@ -12,9 +12,11 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use App\Models\Parametre;
 
 class PanierController extends Controller
 {
@@ -140,8 +142,8 @@ class PanierController extends Controller
         {
             return response()->json(['success' => false, 'message' => 'Commerçant inactif dans la base'], 404);
         }
-
     }
+
     private function calculateTotal($produits)
     {
         $total = 0;
@@ -156,19 +158,20 @@ class PanierController extends Controller
         $user = auth()->user();
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
-        }
-        else
-        {
-            if ($user->paniers->isNotEmpty())
-            {
-                foreach ($user->paniers as $panier)
-                {
+        } else {
+            if ($user->paniers->isNotEmpty()) {
+                $perPage = 1; // Nombre d'éléments par page
+                $page = request('page', 1); // Numéro de page (par défaut 1)
+
+                $paniers = $user->paniers()->paginate($perPage, ['*'], 'page', $page);
+
+                foreach ($paniers as $panier) {
                     $panier->produits = json_decode($panier->produits);
+                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
                 }
-                return response()->json(['success' => true, 'response' => $user->paniers], 200);
-            }
-            else
-            {
+
+                return response()->json(['success' => true, 'response' => $paniers], 200);
+            } else {
                 return response()->json(['success' => false, 'message' => 'Pas de panier disponible'], 404);
             }
         }
@@ -214,31 +217,62 @@ class PanierController extends Controller
         }
         else{
             $paniers = Panier::where('statut', true)->orderBy('created_at', 'DESC')->paginate(10);
-            if ($paniers->isNotEmpty())
-            {
-                foreach ($paniers as $panier)
-                {
-                    $panier->produits = json_decode($paniers->produits);
+            if ($paniers->isNotEmpty()) {
+                foreach ($paniers as $panier) {
+                    $panier->produits = json_decode($panier->produits);
+                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
                 }
                 return response()->json(['success' => true, 'response' => $paniers]);
-            }else{
-                return response()->json(['success' => false, 'message' => 'Aucune commande disponible'], 404);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Aucune commande'], 404);
             }
         }
     }
 
-    public function getPaniersEnCours()
+    public function getPaniersFilter(string $statut)
     {
-        $paniers = Panier::where('statut', true)->where('statut_livraison', 'en cours')->orderBy('created_at', 'DESC')->paginate(10);
-        if ($paniers)
-        {
-            foreach ($paniers as $panier)
-            {
-                $panier->produits = json_decode($paniers->produits);
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        } else {
+            $paniers = Panier::where('statut_livraison', $statut)
+                ->where('user_id', $user->id)->where('statut', true)
+                ->orderBy('created_at', 'DESC')
+                ->paginate(10);
+
+            if ($paniers->isNotEmpty()) {
+                foreach ($paniers as $panier) {
+                    $panier->produits = json_decode($panier->produits);
+                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
+                }
+                return response()->json(['success' => true, 'response' => $paniers]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Aucune commande'], 404);
             }
-            return response()->json(['success' => true, 'response' => $paniers]);
-        }else{
-            return response()->json(['success' => false, 'message' => 'Aucune commande disponible'], 404);
+        }
+    }
+
+
+    public function getAllPaniersFilter(string $statut)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }elseif (!$user->admin)
+        {
+            return response(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        else {
+            $paniers = Panier::where('statut', true)->where('statut_livraison', $statut)->orderBy('created_at', 'DESC')->paginate(10);
+            if ($paniers->isNotEmpty()) {
+                foreach ($paniers as $panier) {
+                    $panier->produits = json_decode($panier->produits);
+                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
+                }
+                return response()->json(['success' => true, 'response' => $paniers]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Aucune commande'], 404);
+            }
         }
     }
 
@@ -261,5 +295,99 @@ class PanierController extends Controller
                 return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
             }
         }
+    }
+
+    public function getPaniersDateFilter(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }
+
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        // Valider les dates 'from' et 'to' au format 'Y-m-d'
+        $validationRules = [
+            'from' => 'required|date_format:Y-m-d',
+            'to' => 'required|date_format:Y-m-d',
+        ];
+
+        // Effectuer une validation personnalisée
+        $validator = Validator::make($request->all(), $validationRules);
+
+        if ($validator->fails() || $to < $from || $from > Carbon::today() || $to > Carbon::today()) {
+            return response()->json(['success' => false, 'message' => 'Dates de requête non valides. Assurez-vous que "from" est inférieur ou égal à "to" et que les deux dates sont inférieures ou égales à la date actuelle.'], 400);
+        }
+
+        // Convertir les dates de requête au format complet
+        $from = $from . 'T00:00:00.000000Z';
+        $to = $to . 'T23:59:59.999999Z';
+
+        $paniers = Panier::where('user_id', $user->id)
+            ->whereBetween('created_at', [$from, $to])
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10);
+
+        if ($paniers->isNotEmpty()) {
+            foreach ($paniers as $panier) {
+                $panier->produits = json_decode($panier->produits);
+                $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
+            }
+            return response()->json(['success' => true, 'response' => $paniers]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Aucune commande trouvée entre les dates spécifiées'], 404);
+        }
+    }
+
+    public function getAllPaniersDateFilter(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        } elseif (!$user->admin) {
+            return response(['success' => false, 'message' => 'Forbidden'], 403);
+        } else {
+        // Valider les dates 'from' et 'to' au format 'Y-m-d'
+            $validationRules = [
+                'from' => 'required|date_format:Y-m-d',
+                'to' => 'required|date_format:Y-m-d',
+            ];
+
+            $from = $request->input('from');
+            $to = $request->input('to');
+
+            // Effectuer une validation personnalisée
+            $validator = Validator::make($request->all(), $validationRules);
+
+            if ($validator->fails() || $to < $from || $from > Carbon::today() || $to > Carbon::today()) {
+                return response()->json(['success' => false, 'message' => 'Dates de requête non valides. Assurez-vous que "from" est inférieur ou égal à "to" et que les deux dates sont inférieures ou égales à la date actuelle.'], 400);
+            }
+
+            // Convertir les dates de requête au format complet
+            $from = $from . 'T00:00:00.000000Z';
+            $to = $to . 'T23:59:59.999999Z';
+
+            $paniers = Panier::where('statut', true)
+                ->whereBetween('created_at', [$from, $to])
+                ->orderBy('created_at', 'DESC')
+                ->paginate(10);
+
+            if ($paniers->isNotEmpty()) {
+                foreach ($paniers as $panier) {
+                    $panier->produits = json_decode($panier->produits);
+                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
+                }
+                return response()->json(['success' => true, 'response' => $paniers]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Aucune commande trouvée entre les dates spécifiées'], 404);
+            }
+        }
+    }
+
+    public function totalCFA(int $total)
+    {
+        $parameter = Parametre::where('nom', 'euro_value')->first();
+        return $total * $parameter->valeur;
     }
 }
