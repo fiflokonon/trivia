@@ -104,6 +104,7 @@ class PanierController extends Controller
                         $panier->type_recepteur = $request->type_recepteur;
                         $panier->nom_prenom_recepteur = $request->nom_prenom_recepteur;
                         $panier->contact_recepteur = $request->contact_recepteur;
+                        $panier->total_cfa = $this->totalCFA( $this->calculateTotal($request->input('produits')) + $request->frais_fournisseur + $request->frais_livraison);
                         $panier->statut = true;
                         $panier->statut_livraison = 'en cours';
                         $panier->created_at = now();
@@ -167,7 +168,6 @@ class PanierController extends Controller
 
                 foreach ($paniers as $panier) {
                     $panier->produits = json_decode($panier->produits);
-                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
                 }
 
                 return response()->json(['success' => true, 'response' => $paniers], 200);
@@ -220,7 +220,6 @@ class PanierController extends Controller
             if ($paniers->isNotEmpty()) {
                 foreach ($paniers as $panier) {
                     $panier->produits = json_decode($panier->produits);
-                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
                 }
                 return response()->json(['success' => true, 'response' => $paniers]);
             } else {
@@ -243,7 +242,6 @@ class PanierController extends Controller
             if ($paniers->isNotEmpty()) {
                 foreach ($paniers as $panier) {
                     $panier->produits = json_decode($panier->produits);
-                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
                 }
                 return response()->json(['success' => true, 'response' => $paniers]);
             } else {
@@ -267,7 +265,6 @@ class PanierController extends Controller
             if ($paniers->isNotEmpty()) {
                 foreach ($paniers as $panier) {
                     $panier->produits = json_decode($panier->produits);
-                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
                 }
                 return response()->json(['success' => true, 'response' => $paniers]);
             } else {
@@ -332,7 +329,6 @@ class PanierController extends Controller
         if ($paniers->isNotEmpty()) {
             foreach ($paniers as $panier) {
                 $panier->produits = json_decode($panier->produits);
-                $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
             }
             return response()->json(['success' => true, 'response' => $paniers]);
         } else {
@@ -376,7 +372,6 @@ class PanierController extends Controller
             if ($paniers->isNotEmpty()) {
                 foreach ($paniers as $panier) {
                     $panier->produits = json_decode($panier->produits);
-                    $panier->total_cfa = $this->totalCFA($panier->sous_total + $panier->frais_fournisseur + $panier->frais_livraison);
                 }
                 return response()->json(['success' => true, 'response' => $paniers]);
             } else {

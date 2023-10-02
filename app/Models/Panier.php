@@ -34,7 +34,8 @@ class Panier extends Model
       'statut_paiement',
       'id_transaction',
       'statut',
-      'commercant_id'
+      'commercant_id',
+      'total'
     ];
 
     public function user()
