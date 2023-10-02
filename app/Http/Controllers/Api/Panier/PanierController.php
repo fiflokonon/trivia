@@ -161,7 +161,7 @@ class PanierController extends Controller
             return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
         } else {
             if ($user->paniers->isNotEmpty()) {
-                $perPage = 1; // Nombre d'éléments par page
+                $perPage = 10; // Nombre d'éléments par page
                 $page = request('page', 1); // Numéro de page (par défaut 1)
 
                 $paniers = $user->paniers()->paginate($perPage, ['*'], 'page', $page);
