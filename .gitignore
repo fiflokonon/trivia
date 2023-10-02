@@ -5,6 +5,7 @@
 /public/storage
 /public/qr/*
 /public/images/profil/*
+/public/factures/*
 /storage/*.key
 /vendor
 .env
