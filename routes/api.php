@@ -36,6 +36,7 @@ Route::post('/profil-photo', [AuthController::class, 'addProfilePhoto'])->middle
 Route::post('/edit-profil', [EditUserController::class, 'editProfile'])->middleware('auth:sanctum');
 Route::post('/commercants/{id}/paniers', [PanierController::class, 'addPanier'])->middleware('auth:sanctum');
 Route::get('/paniers',[PanierController::class, 'userPaniers'])->middleware('auth:sanctum');
+Route::post('/get-paniers', [PanierController::class, 'getFilteredPaniers'])->middleware('auth:sanctum');
 Route::get('/paniers/{statut}', [PanierController::class, 'getPaniersFilter'])->middleware('auth:sanctum');
 Route::post('/paniers/filtre', [PanierController::class, 'getPaniersDateFilter'])->middleware('auth:sanctum');
 Route::get('/points', [PointLivraisonController::class, 'pointActifs'])->middleware('auth:sanctum');
@@ -45,6 +46,7 @@ Route::get('/discussions/{id}/messages', [DiscussionController::class, 'messages
 Route::patch('/messages/{id}/vu', [DiscussionController::class, 'clientLu'])->middleware('auth:sanctum');
 
 Route::get('/admins/paniers', [PanierController::class, 'getAllPaniers'])->middleware('auth:sanctum');
+Route::post('/admins/get-paniers', [PanierController::class, 'getFilteredPaniers'])->middleware('auth:sanctum');
 Route::get('/admins/paniers/{statut}', [PanierController::class, 'getAllPaniersFilter'])->middleware('auth:sanctum');
 Route::post('/admins/paniers/filtre', [PanierController::class, 'getAllPaniersDateFilter'])->middleware('auth:sanctum');
 Route::patch('/admins/paniers/{id}/valide', [PanierController::class, 'validerPanier'])->middleware('auth:sanctum');

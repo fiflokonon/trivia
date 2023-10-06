@@ -7,10 +7,6 @@ use App\Mail\CommandeMail;
 use App\Models\Commercant;
 use App\Models\Panier;
 use App\Models\PointLivraison;
-use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -206,6 +202,82 @@ class PanierController extends Controller
         }
     }
 
+    public function validerPanier(int $id)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }elseif (!$user->admin)
+        {
+            return response(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        else {
+            $panier = Panier::find($id);
+            if ($panier) {
+                $panier->statut_livraison = 'validé';
+                $panier->save();
+                return response()->json(['success' => true, 'message' => 'Panier validé']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
+            }
+        }
+    }
+
+
+    public function getFilteredPaniers(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        }
+
+        $from = $request->input('from', Carbon::today()->subDays(30)->format('Y-m-d'));
+        $to = $request->input('to', Carbon::today()->format('Y-m-d'));
+
+        // Valider les dates 'from' et 'to' au format 'Y-m-d'
+        $validationRules = [
+            'from' => 'nullable|date_format:Y-m-d',
+            'to' => 'nullable|date_format:Y-m-d',
+        ];
+
+        // Effectuer une validation personnalisée
+        $validator = Validator::make($request->all(), $validationRules);
+
+        if ($validator->fails() || $to < $from || $from > Carbon::today() || $to > Carbon::today()) {
+            return response()->json(['success' => false, 'message' => 'Dates de requête non valides. Assurez-vous que "from" est inférieur ou égal à "to" et que les deux dates sont inférieures ou égales à la date actuelle.'], 400);
+        }
+
+        // Convertir les dates de requête au format complet
+        $from = $from . 'T00:00:00.000000Z';
+        $to = $to . 'T23:59:59.999999Z';
+
+        $query = Panier::where('statut', true);
+
+        if (!$user->admin) {
+            $query->where('user_id', $user->id);
+        }
+
+        if ($request->has('statut_livraison')) {
+            $statut_livraison = $request->input('statut_livraison');
+            $query->where('statut_livraison', $statut_livraison);
+        }
+
+        $paniers = $query
+            ->whereBetween('created_at', [$from, $to])
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10);
+
+        if ($paniers->isNotEmpty()) {
+            foreach ($paniers as $panier) {
+                $panier->produits = json_decode($panier->produits);
+            }
+            return response()->json(['success' => true, 'response' => $paniers]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Aucune commande trouvée entre les dates spécifiées'], 404);
+        }
+    }
+
     public function getAllPaniers()
     {
         $user = auth()->user();
@@ -269,27 +341,6 @@ class PanierController extends Controller
                 return response()->json(['success' => true, 'response' => $paniers]);
             } else {
                 return response()->json(['success' => false, 'message' => 'Aucune commande'], 404);
-            }
-        }
-    }
-
-    public function validerPanier(int $id)
-    {
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
-        }elseif (!$user->admin)
-        {
-            return response(['success' => false, 'message' => 'Forbidden'], 403);
-        }
-        else {
-            $panier = Panier::find($id);
-            if ($panier) {
-                $panier->statut_livraison = 'validé';
-                $panier->save();
-                return response()->json(['success' => true, 'message' => 'Panier validé']);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
             }
         }
     }
