@@ -223,6 +223,52 @@ class PanierController extends Controller
         }
     }
 
+    public function changeStatutPanier(int $id, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'statut' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            foreach ($messages->messages() as $key => $value) {
+                if ($messages->has($key . '.required')) {
+                    $response = $key;
+                    return response()->json([
+                        'success' => false,
+                        'message' => $response
+                    ], 400);
+                } elseif ($messages->has($key . '.unique')) {
+                    $response = $key;
+                    return response()->json([
+                        'success' => false,
+                        'message' => $response
+                    ], 400);
+                } else {
+                    $response = $value[0];
+                    return response()->json([
+                        'success' => false,
+                        'message' => $response
+                    ], 400);
+                }
+            }
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+            } elseif (!$user->admin) {
+                return response(['success' => false, 'message' => 'Forbidden'], 403);
+            } else {
+                $panier = Panier::find($id);
+                if ($panier) {
+                    $panier->statut_livraison = $request->statut;
+                    $panier->save();
+                    return response()->json(['success' => true, 'response' => $panier, 'message' => 'Panier modifié avec succès']);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
+                }
+            }
+        }
+    }
 
     public function getFilteredPaniers(Request $request)
     {
@@ -232,8 +278,8 @@ class PanierController extends Controller
             return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
         }
 
-        $from = $request->input('from', Carbon::today()->subDays(30)->format('Y-m-d'));
-        $to = $request->input('to', Carbon::today()->format('Y-m-d'));
+        $from = $request->filled('from') ? $request->input('from') : Carbon::today()->subDays(30)->format('Y-m-d');
+        $to = $request->filled('to') ? $request->input('to') : Carbon::today()->format('Y-m-d');
 
         // Valider les dates 'from' et 'to' au format 'Y-m-d'
         $validationRules = [
@@ -244,7 +290,7 @@ class PanierController extends Controller
         // Effectuer une validation personnalisée
         $validator = Validator::make($request->all(), $validationRules);
 
-        if ($validator->fails() || $to < $from || $from > Carbon::today() || $to > Carbon::today()) {
+        if ($validator->fails() || ($request->filled('from') && $request->filled('to') && $to < $from) || $from > Carbon::today() || $to > Carbon::today()) {
             return response()->json(['success' => false, 'message' => 'Dates de requête non valides. Assurez-vous que "from" est inférieur ou égal à "to" et que les deux dates sont inférieures ou égales à la date actuelle.'], 400);
         }
 
@@ -258,7 +304,7 @@ class PanierController extends Controller
             $query->where('user_id', $user->id);
         }
 
-        if ($request->has('statut_livraison')) {
+        if ($request->has('statut_livraison') && !empty($request->statut_livraison)) {
             $statut_livraison = $request->input('statut_livraison');
             $query->where('statut_livraison', $statut_livraison);
         }

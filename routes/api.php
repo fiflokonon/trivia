@@ -50,6 +50,7 @@ Route::post('/admins/get-paniers', [PanierController::class, 'getFilteredPaniers
 Route::get('/admins/paniers/{statut}', [PanierController::class, 'getAllPaniersFilter'])->middleware('auth:sanctum');
 Route::post('/admins/paniers/filtre', [PanierController::class, 'getAllPaniersDateFilter'])->middleware('auth:sanctum');
 Route::patch('/admins/paniers/{id}/valide', [PanierController::class, 'validerPanier'])->middleware('auth:sanctum');
+Route::patch('/admins/paniers/{id}/update', [PanierController::class, 'changeStatutPanier'])->middleware('auth:sanctum');
 Route::get('/admins/messages', [DiscussionController::class, 'getAllDiscussions'])->middleware('auth:sanctum');
 Route::post('/admins/discussions/{id}/messages', [DiscussionController::class, 'answerMessage'])->middleware('auth:sanctum');
 Route::patch('/admins/messages/{id}/vu', [DiscussionController::class, 'adminLu'])->middleware('auth:sanctum');
