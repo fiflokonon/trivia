@@ -30,7 +30,7 @@ Route::post('/validate-account', 'App\Http\Controllers\Api\User\AuthController@v
 Route::get('/commercants', 'App\Http\Controllers\Api\Panier\CommercantController@listeCommercants');
 Route::get('/parametres', 'App\Http\Controllers\Api\Panier\ParametreController@listeParametres');
 Route::get('/slides', 'App\Http\Controllers\Api\Slide\SlideController@slides');
-Route::get('/all-parametres', [ParametreController::class, 'allParametres']);
+Route::get('/all-parametres', [ParametreController::class, 'allParametres'])->middleware('auth:sanctum');
 
 Route::post('/profil-photo', [AuthController::class, 'addProfilePhoto'])->middleware('auth:sanctum');
 Route::post('/edit-profil', [EditUserController::class, 'editProfile'])->middleware('auth:sanctum');
