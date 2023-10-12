@@ -226,7 +226,7 @@ class PanierController extends Controller
     public function changeStatutPanier(int $id, Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'statut' => 'required|string',
+            'statut' => 'required|string|in:valid,progress,delivered,cancel',
         ]);
 
         if ($validator->fails()) {
