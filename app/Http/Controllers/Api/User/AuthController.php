@@ -164,7 +164,7 @@ class AuthController extends Controller
             Mail::to($email)->send(new VerificationCodeMail($code));
             return true; // Email sent successfully
         } catch (\Throwable $e) {
-            die(var_dump($e->getMessage()));
+            #die(var_dump($e->getMessage()));
             return false; // Error occurred during email sending
         }
     }

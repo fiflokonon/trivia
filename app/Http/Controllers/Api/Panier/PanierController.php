@@ -252,20 +252,20 @@ class PanierController extends Controller
                     ], 400);
                 }
             }
-            $user = auth()->user();
-            if (!$user) {
-                return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
-            } elseif (!$user->admin) {
-                return response(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        } elseif (!$user->admin) {
+            return response(['success' => false, 'message' => 'Forbidden'], 403);
+        } else {
+            $panier = Panier::find($id);
+            if ($panier) {
+                $panier->statut_livraison = $request->statut;
+                $panier->save();
+                return response()->json(['success' => true, 'response' => $panier, 'message' => 'Panier modifié avec succès']);
             } else {
-                $panier = Panier::find($id);
-                if ($panier) {
-                    $panier->statut_livraison = $request->statut;
-                    $panier->save();
-                    return response()->json(['success' => true, 'response' => $panier, 'message' => 'Panier modifié avec succès']);
-                } else {
-                    return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
-                }
+                return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
             }
         }
     }
