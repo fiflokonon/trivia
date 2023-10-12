@@ -263,6 +263,7 @@ class PanierController extends Controller
             if ($panier) {
                 $panier->statut_livraison = $request->statut;
                 $panier->save();
+                $panier->produits = json_encode($panier->produits);
                 return response()->json(['success' => true, 'response' => $panier, 'message' => 'Panier modifié avec succès']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
