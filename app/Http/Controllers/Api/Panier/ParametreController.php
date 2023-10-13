@@ -66,4 +66,16 @@ class ParametreController extends Controller
         }
 
     }
+
+    public function countParameters(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user || !$user->admin) {
+            return response()->json(['success' => false, 'message' => 'Accès non autorisé'], 403);
+        }else {
+            $total_commandes = Panier::count();
+            $total_discussions = Discussion::count();
+            return response()->json(['success' => true, 'response' => ['total_commandes' => $total_commandes, 'total_discussions' => $total_discussions]]);
+        }
+    }
 }

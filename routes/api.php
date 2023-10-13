@@ -54,5 +54,6 @@ Route::patch('/admins/paniers/{id}/update', [PanierController::class, 'changeSta
 Route::get('/admins/messages', [DiscussionController::class, 'getAllDiscussions'])->middleware('auth:sanctum');
 Route::post('/admins/discussions/{id}/messages', [DiscussionController::class, 'answerMessage'])->middleware('auth:sanctum');
 Route::patch('/admins/messages/{id}/vu', [DiscussionController::class, 'adminLu'])->middleware('auth:sanctum');
+Route::get('/admins/stats', [ParametreController::class, 'countParameters'])->middleware('auth:sanctum');
 
 
