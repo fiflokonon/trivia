@@ -8,6 +8,7 @@ use App\Models\Discussion;
 use App\Models\Panier;
 use App\Models\Parametre;
 use App\Models\PointLivraison;
+use App\Models\Message;
 use App\Models\Publicite;
 use Illuminate\Http\Request;
 
