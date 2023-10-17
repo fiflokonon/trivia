@@ -84,7 +84,8 @@ class ParametreController extends Controller
                 'total_discussions' => $total_discussions,
                 'total_commande_progress' => $total_commande_progress,
                 'total_discussion_non_lus' => $total_discussion_non_lus
-                ]]);
+            ]
+        ]);
         }
     }
 }
