@@ -102,7 +102,7 @@ class PanierController extends Controller
                         $panier->contact_recepteur = $request->contact_recepteur;
                         $panier->total_cfa = $this->totalCFA( $this->calculateTotal($request->input('produits')) + $request->frais_fournisseur + $request->frais_livraison);
                         $panier->statut = true;
-                        $panier->statut_livraison = 'en cours';
+                        $panier->statut_livraison = 'progress';
                         $panier->created_at = now();
                         $pdfData = [
                             'numero_panier' => $panier->numero_panier,

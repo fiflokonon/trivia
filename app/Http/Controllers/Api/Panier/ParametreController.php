@@ -38,6 +38,8 @@ class ParametreController extends Controller
         $parametres['infos_trivia'] = $infos_trivia;
         $parametres['points'] = $points;
         $parametres['slides'] = $slides;
+        $total_commande_progress = Panier::where('statut_livraison', 'progress')->count();
+        $total_discussion_non_lus = Message::where('vu_admin', false)->count();
         $user = auth()->user();
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
@@ -55,6 +57,8 @@ class ParametreController extends Controller
         else {
            $parametres['total_commandes'] = $total_commandes;
            $parametres['total_discussions'] = $total_discussions;
+           $parametres['total_commande_progress'] = $total_commande_progress;
+           $parametres['total_discussion_non_lus'] = $total_discussion_non_lus;
             if ($parametres)
             {
                 return response()->json(['success' => true, 'response' => $parametres]);
