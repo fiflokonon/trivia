@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Log;
 
 class Controller extends BaseController
 {
@@ -18,6 +19,7 @@ class Controller extends BaseController
 
     public function sendPushNotificationToTopic($topic, $title, $body, $data = [])
     {
+        $serverKey = env('FIREBASE_TOKEN'); // Votre clé de serveur Firebase
         $serverKey = env('FIREBASE_TOKEN'); // Votre clé de serveur Firebase
         $headers = [
             'Authorization: key=' . $serverKey,

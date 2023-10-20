@@ -267,7 +267,7 @@ class PanierController extends Controller
                     'Changement de statut',
                         "Le statut de votre commande est désormais $request->statut"
                 );
-                $panier->produits = json_encode($panier->produits);
+                $panier->produits = json_decode($panier->produits);
                 return response()->json(['success' => true, 'response' => $panier, 'message' => 'Panier modifié avec succès']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Panier indisponible'], 404);
