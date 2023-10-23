@@ -56,6 +56,13 @@ class CommercantSeeder extends Seeder
                 'frais' => 4.45,
                 'statut' => true
             ],
+            [
+                'nom' => 'C-AND-A',
+                'montant_min' => 0.00,
+                'montant_max' => 45.00,
+                'frais' => 4.45,
+                'statut' => true
+            ],
         ];
 
         foreach ($commercants as $commercantData) {
