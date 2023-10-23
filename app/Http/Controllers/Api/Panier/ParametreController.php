@@ -39,7 +39,7 @@ class ParametreController extends Controller
         $slides = Publicite::where('statut', true)->get();
         $pays = Pays::all();
         #$pays = Pays::where('statut', true)->get();
-        $pays_relais = Pays::with('points')->where('statut', true)->get();
+        $pays_relais = Pays::with('points')->get();
         $total_commandes = Panier::count();
         $total_discussions = Discussion::count();
         $notifications_count = Notification::where('user_id', $user->id)->where('vu', false)->count();

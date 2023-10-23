@@ -16,6 +16,6 @@ class Pays extends Model
 
     public function points()
     {
-        return $this->hasMany(PointLivraison::class)->where('statut', true);
+        return $this->hasMany(PointLivraison::class);
     }
 }
