@@ -66,7 +66,7 @@ class PointLivraisonController extends Controller
                             'description' => $request->description,
                             'statut' => true
                         ]);
-                        return response()->json(['success' => true, 'message' => 'Point de livraison ajouté avec succès']);
+                        return response()->json(['success' => true, 'response' => Pays::with('points')->where('id', $pays_id)->get(), 'message' => 'Point de livraison ajouté avec succès']);
                     } catch (\Exception $exception) {
                         return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
                     }

@@ -135,11 +135,11 @@ class ParametreController extends Controller
             }
             else{
                 try {
-                    Pays::create([
+                    $pays = Pays::create([
                        'nom' => $request->pays,
                        'statut' => true
                     ]);
-                    return response()->json(['success' => true, 'response' => Pays::where('statut', true)->get(), 'message' => 'Pays ajouté avec succès']);
+                    return response()->json(['success' => true, 'response' => $pays, 'message' => 'Pays ajouté avec succès']);
                 }catch (\Exception $exception){
                     return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
                 }
