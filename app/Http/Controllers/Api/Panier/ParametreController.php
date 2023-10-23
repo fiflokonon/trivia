@@ -183,7 +183,7 @@ class ParametreController extends Controller
 
     public function listePays(Request $request)
     {
-        $pays = Pays::all();
+        $pays = Pays::with('points')->get();
         if ($pays){
             return response()->json(['success' => true, 'response' => $pays]);
         }else{
