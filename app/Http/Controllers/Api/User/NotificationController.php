@@ -25,7 +25,7 @@ class NotificationController extends Controller
         }
     }
 
-    public function viewedNotifs()
+    /*public function viewedNotifs()
     {
         $user = auth()->user();
         if (!$user) {
@@ -33,6 +33,23 @@ class NotificationController extends Controller
         } else {
             $user->viewed_notifications();
             $user->save();
+            $perPage = 10; // Nombre d'éléments par page
+            $page = request('page', 1); // Numéro de page (par défaut 1)
+            $notifications = $user->notifications()->paginate($perPage, ['*'], 'page', $page);
+            return response()->json(['success' => true, 'response' => $notifications , 'message' => 'Notifications vues']);
+        }
+    }*/
+
+    public function viewedNotifs()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
+        } else {
+            $notifs = $user->notifications;
+            foreach ($notifs as $notif) {
+                $notif->viewed();
+            }
             $perPage = 10; // Nombre d'éléments par page
             $page = request('page', 1); // Numéro de page (par défaut 1)
             $notifications = $user->notifications()->paginate($perPage, ['*'], 'page', $page);
