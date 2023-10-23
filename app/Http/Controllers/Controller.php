@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -17,9 +18,9 @@ class Controller extends BaseController
         return strtoupper(bin2hex($bytes));
     }
 
-    public function sendPushNotificationToTopic($topic, $title, $body, $data = [])
+    public function sendPushNotificationToTopic($user_id, $topic, $title, $body, $data = [])
     {
-        $serverKey = env('FIREBASE_TOKEN'); // Votre clé de serveur Firebase
+        #$serverKey = env('FIREBASE_TOKEN'); // Votre clé de serveur Firebase
         $serverKey = env('FIREBASE_TOKEN'); // Votre clé de serveur Firebase
         $headers = [
             'Authorization: key=' . $serverKey,
@@ -34,7 +35,13 @@ class Controller extends BaseController
             ],
             'data' => $data,
         ];
-
+        Notification::create([
+            'titre' => $title,
+            'contenu' => $body,
+            'vu' => false,
+            'user_id' => $user_id,
+            'statut' => true
+        ]);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
         curl_setopt($ch, CURLOPT_POST, true);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Panier\PointLivraisonController;
 use App\Http\Controllers\Api\User\AuthController;
 use App\Http\Controllers\Api\User\DiscussionController;
 use App\Http\Controllers\Api\User\EditUserController;
+use App\Http\Controllers\Api\User\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,8 @@ Route::get('/messages', [DiscussionController::class, 'discussions'])->middlewar
 Route::post('/messages', [DiscussionController::class, 'initDiscussion'])->middleware('auth:sanctum');
 Route::get('/discussions/{id}/messages', [DiscussionController::class, 'messages'])->middleware('auth:sanctum');
 Route::patch('/messages/{id}/vu', [DiscussionController::class, 'clientLu'])->middleware('auth:sanctum');
+Route::get('/notifications', [NotificationController::class, 'notifications'])->middleware('auth:api');
+Route::patch('/notifications-vues', [NotificationController::class, 'viewedNotifs'])->middleware('auth:api');
 
 Route::get('/admins/paniers', [PanierController::class, 'getAllPaniers'])->middleware('auth:sanctum');
 Route::post('/admins/get-paniers', [PanierController::class, 'getFilteredPaniers'])->middleware('auth:sanctum');
@@ -62,4 +65,4 @@ Route::patch('/admins/pays/{id}/inactive', [ParametreController::class, 'desacti
 Route::post('/admins/pays/{id}/points', [PointLivraisonController::class, 'ajoutPointLivraison'])->middleware('auth:api');
 Route::patch('/admins/points/{id}/active', [PointLivraisonController::class, 'activerPointLivraison'])->middleware('auth:api');
 Route::patch('/admins/points/{id}/inactive', [PointLivraisonController::class, 'desactiverPointLivraison'])->middleware('auth:api');
-
+Route::get('/pays', [ParametreController::class, 'listePays'])->middleware('auth:api');

@@ -263,7 +263,7 @@ class PanierController extends Controller
             if ($panier) {
                 $panier->statut_livraison = $request->statut;
                 $panier->save();
-                $this->sendPushNotificationToTopic("trivia-$user->id",
+                $this->sendPushNotificationToTopic($user->id, "trivia-$user->id",
                     'Changement de statut',
                         "Le statut de votre commande est désormais $request->statut"
                 );

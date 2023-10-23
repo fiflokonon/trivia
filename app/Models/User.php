@@ -60,4 +60,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Discussion::class, 'client_id');
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function viewed_notifications()
+    {
+        $notifications = $this->notifications();
+        foreach ($notifications as $notification){
+            $notification->vu = true;
+            $notification->save();
+        }
+    }
 }

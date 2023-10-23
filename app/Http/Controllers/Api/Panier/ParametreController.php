@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Panier;
 use App\Http\Controllers\Controller;
 use App\Models\Commercant;
 use App\Models\Discussion;
+use App\Models\Notification;
 use App\Models\Panier;
 use App\Models\Parametre;
 use App\Models\Pays;
@@ -31,21 +32,25 @@ class ParametreController extends Controller
 
     public function allParametres(Request $request)
     {
+        $user = auth()->user();
         $commercants = Commercant::where('statut', true)->get();
         $infos_trivia = Parametre::where('statut', true)->get();
         $points = PointLivraison::where('statut', true)->get();
         $slides = Publicite::where('statut', true)->get();
-        $pays = Pays::where('statut', true)->get();
+        $pays = Pays::all();
+        #$pays = Pays::where('statut', true)->get();
         $pays_relais = Pays::with('points')->where('statut', true)->get();
         $total_commandes = Panier::count();
         $total_discussions = Discussion::count();
+        $notifications_count = Notification::where('user_id', $user->id)->where('vu', false)->count();
         $parametres ['commercants'] = $commercants;
         $parametres['infos_trivia'] = $infos_trivia;
         $parametres['points'] = $points;
         $parametres['slides'] = $slides;
         $parametres['pays'] = $pays;
         $parametres['pays_relais'] = $pays_relais;
-        $user = auth()->user();
+        $parametres['nombre_notifications'] = $notifications_count;
+        #$user = auth()->user();
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé! Veuillez entrer le token'], 401);
         }elseif (!$user->admin)
@@ -173,6 +178,16 @@ class ParametreController extends Controller
             }else{
                 return response()->json(['success' => false, 'message' => 'Pays indisponible']);
             }
+        }
+    }
+
+    public function listePays(Request $request)
+    {
+        $pays = Pays::all();
+        if ($pays){
+            return response()->json(['success' => true, 'response' => $pays]);
+        }else{
+            return response()->json(['success' => false, 'message' => 'Liste vide'], 404);
         }
     }
 }
