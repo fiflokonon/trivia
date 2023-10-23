@@ -12,6 +12,14 @@ class NotificationSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        DB::table('notifications')->insert([
+            [
+                'titre' => 'Changement de statut',
+                'contenu' => 'Votre commande a changé de statut',
+                'vu' => false,
+                'user_id' => 2,
+                'statut' => true
+            ] 
+            ]);
     }
 }
