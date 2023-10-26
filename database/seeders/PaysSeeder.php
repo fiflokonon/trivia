@@ -19,9 +19,21 @@ class PaysSeeder extends Seeder
                 'statut' => true
             ],
             [
-                'nom' => 'Togo',
+                'nom' => "Cote d'Ivoire",
                 'statut' => true
-            ]
+            ],
+            [
+                'nom' => 'Cameroun',
+                'statut' => true
+            ],
+            [
+                'nom' => 'Gabon',
+                'statut' => true
+            ],
+            [
+                'nom' => 'Sénégal',
+                'statut' => true
+            ],
         ]);
     }
 }

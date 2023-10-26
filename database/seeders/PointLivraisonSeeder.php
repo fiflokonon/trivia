@@ -14,30 +14,30 @@ class PointLivraisonSeeder extends Seeder
      */
     public function run(): void
     {
-        $pays_benin = Pays::where('nom', 'Bénin')->first();
+        $pays_cote_ivoire = Pays::where('nom', "Cote d'Ivoire")->first();
         DB::table('point_livraisons')->insert([
             [
-                'intitule' => 'Porto-Novo',
+                'intitule' => 'Abidjan, Centre cmmercial Angré Djibi',
                 'description' => 'La capitale',
-                'pays_id' => $pays_benin->id,
+                'pays_id' => $pays_cote_ivoire->id,
                 'statut' => true
             ],
             [
-                'intitule' => 'Cotonou',
+                'intitule' => 'Abidjan, Centre commercial Zone 3',
                 'description' => 'La capitale éco',
-                'pays_id' => $pays_benin->id,
+                'pays_id' => $pays_cote_ivoire->id,
                 'statut' => true
             ],
             [
                 'intitule' => 'Parakou',
                 'description' => 'La ville facile',
-                'pays_id' => $pays_benin->id,
+                'pays_id' => $pays_cote_ivoire->id,
                 'statut' => true
             ],
             [
-                'intitule' => 'Abomey-calavi',
-                'description' => 'La ville des étudiants',
-                'pays_id' => $pays_benin->id,
+                'intitule' => 'Abidjan, Galerie du Parc Plateau',
+                'description' => 'La Galerie',
+                'pays_id' => $pays_cote_ivoire->id,
                 'statut' => true
             ],
         ]);
